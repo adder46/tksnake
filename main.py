@@ -2,15 +2,22 @@ import collections
 import random
 import sys
 import tkinter as tk
+from typing import (
+    Any,
+    Deque,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+)
 
-import q
 
 SCREEN_WIDTH = 30
 SCREEN_HEIGHT = 15
 
 SCALE = 20
 
-DIRECTIONS = {
+DIRECTIONS: Dict[str, Any] = {
     'Up': {
         'coords': {
             'x': 0,
@@ -44,16 +51,16 @@ DIRECTIONS = {
 
 class SnakeGame:
 
-    def __init__(self, canvas):
+    def __init__(self, canvas: tk.Canvas):
         self.canvas = canvas
         self.snake_body = self.init_body()
-        self.food_counter = 0
+        self.food_counter: int = 0
         self.food = self.make_food()
-        self.current_direction = 'Right'
-        self.next_direction = 'Right'
+        self.current_direction: str = 'Right'
+        self.next_direction: str = 'Right'
         self.crawl()
         
-    def crawl(self):
+    def crawl(self) -> None:
         """
         Crawls one step at a time and eats food if on the way.
         Takes care of colliding with itself, too.
@@ -76,19 +83,23 @@ class SnakeGame:
         self.draw_snake()
         self.canvas.after(100, self.crawl)
     
-    def eat_food(self):
+    def eat_food(self) -> None:
         """
         Eats food on the way and grows snake body by a piece.
         """
         self.food_counter = 0
-        self.snake_body = collections.deque(self.snake_body, maxlen=self.snake_body.maxlen+1)
+
+        current_max_length: Optional[int] = self.snake_body.maxlen
+        assert current_max_length is not None
+
+        self.snake_body = collections.deque(self.snake_body, maxlen=current_max_length+1)
         self.snake_body.insert(0, (
             self.snake_body[0][0] + DIRECTIONS[self.current_direction]['coords']['x'],
             self.snake_body[0][1] + DIRECTIONS[self.current_direction]['coords']['y']
         ))
         self.food = self.make_food()
 
-    def make_food(self):
+    def make_food(self) -> Tuple[int, int]:
         """
         Makes food until it is positioned properly.
         """
@@ -101,7 +112,7 @@ class SnakeGame:
         self.draw_food(x, y)
         return (x, y)
 
-    def draw_snake(self):
+    def draw_snake(self) -> None:
         """
         Draws snake body on the canvas.
         """
@@ -113,7 +124,7 @@ class SnakeGame:
                 fill='black'
             )
     
-    def draw_food(self, x, y):
+    def draw_food(self, x: int, y: int) -> None:
         """
         Draws food on the canvas.
         """
@@ -123,7 +134,7 @@ class SnakeGame:
             fill='red', tags=['food']
         )
 
-    def init_body(self):
+    def init_body(self) -> Deque[Tuple[int, int]]:
         """
         Initializes snake body.
         """
@@ -132,7 +143,7 @@ class SnakeGame:
             maxlen=7
         )
 
-    def get_next_step(self):
+    def get_next_step(self) -> Tuple[int, int]:
         """
         Gets next step based on current direction in (X, Y) form.
         """
@@ -141,7 +152,7 @@ class SnakeGame:
             (self.snake_body[-1][1] + DIRECTIONS[self.current_direction]['coords']['y']) % SCREEN_HEIGHT
         )
 
-    def set_direction(self, event):
+    def set_direction(self, event: tk.Event) -> None:
         """
         Sets direction whilst making sure it isn't the forbidden one.
         """
@@ -150,7 +161,7 @@ class SnakeGame:
             self.next_direction = direction
 
 
-def main():
+def main() -> None:
     root = tk.Tk()
     canvas = tk.Canvas(
         root,
